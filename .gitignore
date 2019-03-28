@@ -1,3 +1,4 @@
 .env
 bot.db
 .vscode/
+__pycache__
