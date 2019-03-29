@@ -8,6 +8,3 @@ class ClassModel(BaseModel):
     class_name = CharField(null=False)
     skipped_classes = IntegerField(default=0)
     skipped_classes_limit = IntegerField(null=False)
-
-    def list_by_chat(self, chat_id):
-        return ClassModel.get(ClassModel.chat_id == chat_id)

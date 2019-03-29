@@ -38,7 +38,7 @@ def add_skip_limit(bot, update, user_data):
         'Pronto!'
     )
 
-def class_handler():
+def add_class_handler():
     handler = ConversationHandler(
         entry_points=[CommandHandler('add-materia', add_class_entry)],
         states={
@@ -62,6 +62,21 @@ def class_handler():
 
     return handler
 
+
+def list_classes(bot, update):
+    classes = ClassModel.select().where(ClassModel.chat_id == update.message.chat_id)
+
+    response = ''
+
+    for class_model in classes:
+        line = class_model.class_name + ':\t' + str(class_model.skipped_classes) + ' faltas\n'
+        response += line
+    
+    update.message.reply_text(response)
+
+def list_classes_handler():
+    handler = CommandHandler('resumo', list_classes)
+    return handler
 
 def __save(user_data):
     ClassModel.create(
