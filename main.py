@@ -7,6 +7,7 @@ from telegram.ext import Updater
 from handlers.start import start_handler
 from handlers.class_handler import add_class_handler
 from handlers.class_handler import list_classes_handler
+from handlers.missed_class_handler import missed_class_handler
 
 def __setup_logger():
     logging.basicConfig(
@@ -28,6 +29,7 @@ def main():
     dispatcher.add_handler(start_handler())
     dispatcher.add_handler(add_class_handler())
     dispatcher.add_handler(list_classes_handler())
+    dispatcher.add_handler(missed_class_handler())
     
     updater.start_polling()
     logger.info("Polling started...")
