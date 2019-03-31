@@ -3,6 +3,8 @@ import math
 
 from emoji import emojize
 
+from peewee import DoesNotExist
+
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 from telegram.ext import ConversationHandler
@@ -10,9 +12,12 @@ from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.ext import RegexHandler
 
+from handlers.shared import cancel_handler
+from handlers.shared import select_class_keyboard
 from models.class_model import ClassModel
 
 ASK_NAME, ASK_LIMIT = range(2)
+DELETING_CLASS = range(1)
 
 def add_class_entry(bot, update):
     update.message.reply_text(
@@ -46,7 +51,7 @@ def add_skip_limit(bot, update, user_data):
 
 def add_class_handler():
     handler = ConversationHandler(
-        entry_points=[CommandHandler('add-materia', add_class_entry)],
+        entry_points=[CommandHandler('add_materia', add_class_entry)],
         states={
             ASK_NAME: [
                 MessageHandler(
@@ -63,7 +68,7 @@ def add_class_handler():
                 )
             ],
         },
-        fallbacks=[]
+        fallbacks=[cancel_handler()]
     )
 
     return handler
@@ -93,6 +98,48 @@ def list_classes(bot, update):
 def list_classes_handler():
     handler = CommandHandler('resumo', list_classes)
     return handler
+
+
+def delete_class_entry(bot, update):
+    select_class_keyboard(update)
+    return DELETING_CLASS
+
+def delete_class(bot, update):
+    class_name = update.message.text
+    chat_id = update.message.chat_id
+
+    try:
+        missed_class = ClassModel.get((ClassModel.chat_id == chat_id) & (ClassModel.class_name == class_name))
+        missed_class.delete_instance()
+
+        update.message.reply_text(
+            'Matéria removida!',
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+        return ConversationHandler.END
+    except DoesNotExist:
+        update.message.reply_text(
+            'Não conheço essa matéria! Tente novamente.'
+        )
+
+
+def delete_class_handler():
+    handler = ConversationHandler(
+        entry_points=[CommandHandler('tirar_materia', delete_class_entry)],
+        states={
+            DELETING_CLASS: [
+                MessageHandler(
+                    Filters.text,
+                    delete_class,
+                )
+            ],
+        },
+        fallbacks=[cancel_handler()]
+    )
+
+    return handler
+
 
 def __get_status_emoji(skipped_classes, skipped_classes_limit):
     status_ok = emojize(":white_check_mark:", use_aliases=True)

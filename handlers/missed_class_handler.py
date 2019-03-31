@@ -3,12 +3,13 @@ import logging
 from peewee import DoesNotExist
 
 from telegram import ParseMode
-from telegram import ReplyKeyboardMarkup
 from telegram.ext import CommandHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import Filters
 from telegram.ext import MessageHandler
 
+from handlers.shared import cancel_handler
+from handlers.shared import select_class_keyboard
 from models.class_model import ClassModel
 
 logger = logging.getLogger(__name__)
@@ -16,15 +17,7 @@ logger = logging.getLogger(__name__)
 SELECTING_CLASS = range(1)
 
 def ask_for_class(bot, update):
-    classes = ClassModel.select().where(ClassModel.chat_id == update.message.chat_id)
-
-    reply_keyboard = [[class_model.class_name for class_model in classes]]
-
-    update.message.reply_text(
-        'Qual a matéria?\n',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-    )
-
+    select_class_keyboard(update)
     return SELECTING_CLASS
 
 def missed_class(bot, update):
@@ -57,7 +50,7 @@ def missed_class_handler():
         states={
             SELECTING_CLASS: [MessageHandler(Filters.text, missed_class)]
         },
-        fallbacks=[]
+        fallbacks=[cancel_handler()]
     )
 
     return handler
