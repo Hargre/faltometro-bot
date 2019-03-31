@@ -3,6 +3,7 @@ import logging
 from peewee import DoesNotExist
 
 from telegram import ParseMode
+from telegram import ReplyKeyboardRemove
 from telegram.ext import CommandHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import Filters
@@ -33,7 +34,8 @@ def missed_class(bot, update):
         update.message.reply_text(
             'Falta salva! Você já faltou *%s* vezes, e seu limite é de *%s* faltas.'
             % (missed_class.skipped_classes, missed_class.skipped_classes_limit),
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardRemove()
         )
 
         return ConversationHandler.END
@@ -64,7 +66,8 @@ def remove_missed_class(bot, update):
 
         if not missed_class.skipped_classes:
             update.message.reply_text(
-                'Não há faltas para remover!'
+                'Não há faltas para remover!',
+                reply_markup=ReplyKeyboardRemove()
             )
             return ConversationHandler.END
 
@@ -74,7 +77,8 @@ def remove_missed_class(bot, update):
         update.message.reply_text(
             'Falta removida! Você agora tem *%s* falta(s), de um limite de *%s*.'
             % (missed_class.skipped_classes, missed_class.skipped_classes_limit),
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=ReplyKeyboardRemove()
         )
 
         return ConversationHandler.END
