@@ -7,6 +7,7 @@ def help(bot, update):
         '/tirar\_materia - Retira uma matéria de sua lista.\n\n'
         '/resumo - Exibe sua situação de faltas em todas as matérias.\n\n'
         '/faltei - Adiciona uma falta a uma de suas matérias.\n\n'
+        '/tirar\_falta - Retira uma falta de uma de suas matérias.\n\n'
         '/cancelar - Cancela qualquer ação em andamento.\n\n',
         parse_mode=ParseMode.MARKDOWN
     )

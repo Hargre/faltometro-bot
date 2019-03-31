@@ -26,7 +26,6 @@ def missed_class(bot, update):
 
     try:
         missed_class = ClassModel.get((ClassModel.chat_id == chat_id) & (ClassModel.class_name == class_name))
-        logger.info("User %s skipped class: %s", update.message.from_user.first_name, missed_class.class_name)
 
         missed_class.skipped_classes += 1
         missed_class.save()
@@ -49,6 +48,46 @@ def missed_class_handler():
         entry_points=[CommandHandler('faltei', ask_for_class)],
         states={
             SELECTING_CLASS: [MessageHandler(Filters.text, missed_class)]
+        },
+        fallbacks=[cancel_handler()]
+    )
+
+    return handler
+
+
+def remove_missed_class(bot, update):
+    class_name = update.message.text
+    chat_id = update.message.chat_id
+
+    try:
+        missed_class = ClassModel.get((ClassModel.chat_id == chat_id) & (ClassModel.class_name == class_name))
+
+        if not missed_class.skipped_classes:
+            update.message.reply_text(
+                'Não há faltas para remover!'
+            )
+            return ConversationHandler.END
+
+        missed_class.skipped_classes -= 1
+        missed_class.save()
+
+        update.message.reply_text(
+            'Falta removida! Você agora tem *%s* falta(s), de um limite de *%s*.'
+            % (missed_class.skipped_classes, missed_class.skipped_classes_limit),
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+        return ConversationHandler.END
+    except DoesNotExist:
+        update.message.reply_text(
+            'Não conheço essa matéria! Tente novamente.'
+        )
+
+def remove_missed_class_handler():
+    handler = ConversationHandler(
+        entry_points=[CommandHandler('tirar_falta', ask_for_class)],
+        states={
+            SELECTING_CLASS: [MessageHandler(Filters.text, remove_missed_class)]
         },
         fallbacks=[cancel_handler()]
     )
