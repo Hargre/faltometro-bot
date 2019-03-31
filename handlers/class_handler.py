@@ -1,5 +1,9 @@
 import logging
+import math
 
+from emoji import emojize
+
+from telegram import ParseMode
 from telegram.ext import CommandHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import Filters
@@ -38,6 +42,8 @@ def add_skip_limit(bot, update, user_data):
         'Pronto!'
     )
 
+    return ConversationHandler.END
+
 def add_class_handler():
     handler = ConversationHandler(
         entry_points=[CommandHandler('add-materia', add_class_entry)],
@@ -69,14 +75,42 @@ def list_classes(bot, update):
     response = ''
 
     for class_model in classes:
-        line = class_model.class_name + ':\t' + str(class_model.skipped_classes) + ' faltas\n'
+        line = (
+            '*%s:*\t\t\t\t```\n%s / %s faltas\t\t\t\t%s```\n\n'
+            % (
+                class_model.class_name,
+                class_model.skipped_classes,
+                class_model.skipped_classes_limit,
+                __get_status_emoji(class_model.skipped_classes, class_model.skipped_classes_limit)
+            )
+        )
         response += line
     
-    update.message.reply_text(response)
+    update.message.reply_text(response, parse_mode=ParseMode.MARKDOWN)
+
+
 
 def list_classes_handler():
     handler = CommandHandler('resumo', list_classes)
     return handler
+
+def __get_status_emoji(skipped_classes, skipped_classes_limit):
+    status_ok = emojize(":white_check_mark:", use_aliases=True)
+    status_warning = emojize(":warning:", use_aliases=True)
+    status_danger = emojize(":sos:", use_aliases=True)
+    status_failed = emojize(":x:", use_aliases=True)
+
+    skipped_percent = (skipped_classes * 100) / skipped_classes_limit
+    skipped_percent = math.floor(skipped_percent)
+
+    if skipped_percent < 40:
+        return status_ok
+    elif skipped_percent >= 40 and skipped_percent < 70:
+        return status_warning
+    elif skipped_percent >= 70 and skipped_percent < 100:
+        return status_danger
+    else:
+        return status_failed
 
 def __save(user_data):
     ClassModel.create(
