@@ -18,6 +18,22 @@ def __setup_logger():
         level=logging.INFO
     )
 
+def __prod_setup(updater, token):
+    port = int(os.environ.get('PORT', '8443'))
+
+    updater.start_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=token
+    )
+
+    app_name = os.getenv('APP_NAME')
+
+    updater.bot.set_webhook(app_name + token)
+
+def __dev_setup(updater):
+    updater.start_polling()
+
 def main():
     __setup_logger()
     logger = logging.getLogger(__name__)
@@ -37,9 +53,16 @@ def main():
     dispatcher.add_handler(missed_class_handler())
     dispatcher.add_handler(remove_missed_class_handler())
     
-    updater.start_polling()
-    logger.info("Polling started...")
+    if os.getenv('ENV_MODE') == 'PROD':
+        __prod_setup(updater, token)
+        logger.info("Webhooks started...")
+    else:
+        __dev_setup(updater)
+        logger.info("Polling started...")
+
     updater.idle()
+    
+
 
 if __name__ == '__main__':
     main()
