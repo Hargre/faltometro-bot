@@ -81,7 +81,7 @@ def list_classes(bot, update):
 
     for class_model in classes:
         line = (
-            '*%s:*\t\t\t\t```\n%s / %s faltas\t\t\t\t%s```\n\n'
+            '*%s:*\n``` %s / %s faltas\t\t\t\t%s```\n\n'
             % (
                 class_model.class_name,
                 class_model.skipped_classes,
