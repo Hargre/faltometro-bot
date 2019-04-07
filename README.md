@@ -16,5 +16,5 @@ Bot para Telegram escrito em Python com o intuito de registrar faltas em matéri
     > from models.class_model import ClassModel
     > db.create_tables([ClassModel])
   ```
- * Criar na raiz do projeto um arquivo .env e adicionar a variável ```BOT_API_TOKEN```, com o token gerado pelo Telegram para o bot.
+ * Criar na raiz do projeto um arquivo .env e adicionar a variável ```BOT_API_TOKEN```, com o token gerado pelo Telegram para o bot. Para mais instruções sobre a criação de um bot, conferir a documentação do [próprio Telegram.](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
  * Para rodar o projeto: ```python main.py```
