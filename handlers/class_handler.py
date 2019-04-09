@@ -12,6 +12,7 @@ from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.ext import RegexHandler
 
+from constants import limit_status
 from handlers.shared import cancel_handler
 from handlers.shared import select_class_keyboard
 from models.class_model import ClassModel
@@ -150,11 +151,11 @@ def __get_status_emoji(skipped_classes, skipped_classes_limit):
     skipped_percent = (skipped_classes * 100) / skipped_classes_limit
     skipped_percent = math.floor(skipped_percent)
 
-    if skipped_percent < 40:
+    if skipped_percent < limit_status.WARNING:
         return status_ok
-    elif skipped_percent >= 40 and skipped_percent < 70:
+    elif skipped_percent >= limit_status.WARNING and skipped_percent < limit_status.DANGER:
         return status_warning
-    elif skipped_percent >= 70 and skipped_percent < 100:
+    elif skipped_percent >= limit_status.DANGER and skipped_percent <= limit_status.LIMIT:
         return status_danger
     else:
         return status_failed

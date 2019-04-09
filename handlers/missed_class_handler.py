@@ -9,6 +9,7 @@ from telegram.ext import ConversationHandler
 from telegram.ext import Filters
 from telegram.ext import MessageHandler
 
+from flavor.missed_class_responses import choose_missed_class_response
 from handlers.shared import cancel_handler
 from handlers.shared import select_class_keyboard
 from models.class_model import ClassModel
@@ -31,9 +32,10 @@ def missed_class(bot, update):
         missed_class.skipped_classes += 1
         missed_class.save()
 
+        response = choose_missed_class_response(missed_class.skipped_classes, missed_class.skipped_classes_limit)
+
         update.message.reply_text(
-            'Falta salva! Você já faltou *%s* vezes, e seu limite é de *%s* faltas.'
-            % (missed_class.skipped_classes, missed_class.skipped_classes_limit),
+            response,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=ReplyKeyboardRemove()
         )
