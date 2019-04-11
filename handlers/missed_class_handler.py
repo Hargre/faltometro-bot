@@ -33,6 +33,10 @@ def missed_class(bot, update):
         missed_class.save()
 
         response = choose_missed_class_response(missed_class.skipped_classes, missed_class.skipped_classes_limit)
+        response += (
+            '\n\nVocê já faltou *%s* vezes, de um limite de *%s* faltas.'
+            % (missed_class.skipped_classes, missed_class.skipped_classes_limit)
+        )
 
         update.message.reply_text(
             response,
